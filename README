@@ -1,0 +1,79 @@
+NAME
+    adium_logs_2_html.pl
+
+VERSION
+    version 0.01
+
+SYNOPSIS
+    Parse Adium logfiles and turn them to HTML tables.
+
+      adium_logs_2_html > adium_logfile.html
+
+OPTIONS
+    Options are passed on the command line, see an example below.
+
+    "--account"
+        The account, usually of the form
+        "(Jabber|IRC|Twitter|GTalk|).user@service.tld".
+
+    "--exclude"
+        Regular expression used for excluding certain conversations (usually
+        the other party's login name, or the chatroom name for a group
+        chat).
+
+    "--fromdate"
+        Start date for selecting the logs to parse, in any format
+        Date::Parse can understand. Optional, defaults to 8 days ago.
+
+    "--todate"
+        End date (inclusive), optional.
+
+    "--user"
+        User name for finding the base directory. Defaults to $USER.
+
+    "--auser"
+        Adium user name, as seen in the "Login as user" box one sometimes
+        sees at program startup.
+
+    "--help"
+        Print this documentation.
+
+DESCRIPTION
+    Transform Adium logfiles into a single HTML file, with 1 table per
+    conversation, sorted by account and date, and prints it to STDOUT. Makes
+    reading the logs possible (contrary to the built-in logfile viewer,
+    IMHO).
+
+    Here's an example:
+
+        ./adium_logs_2_html.pl
+            --account Jabber.+booking \
+            --exclude 'conference|live' \
+            --from '2011-07-01' \
+            --user david \
+            --auser 'David Morel'
+                > ~/tmp/jabber_logs.html
+
+    And an example of the full path to a logfile on my machine:
+
+        /Users
+         /david
+          /Library
+           /Application Support
+            /Adium 2.0
+             /Users
+              /David Morel
+               /Logs
+                /Jabber.david.morel@jabber.booking.com
+                 /john.doe@jabber.booking.com
+                  /john.doe@jabber.booking.com (2011-03-29T14.40.23+0200).chatlog
+                   /john.doe@jabber.booking.com (2011-03-29T14.40.23+0200).xml
+
+AUTHOR
+    David Morel <david dot morel at amakuru dot net>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2011 by David Morel.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
