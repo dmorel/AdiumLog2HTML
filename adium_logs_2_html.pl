@@ -152,11 +152,12 @@ die "Cannot find specified user directory in $users_dir\n"
     if !( $log_dir = $users_dir->subdir("$adium_user/Logs") );
 my @accounts = $log_dir->children();
 
-# Yeah, I know, it's CGI, it's not even Pretty, bla bla bla.
-# Well, chew rocks as the guy said.
+binmode STDOUT, ':encoding(UTF-8)';
+
 print <<HTML;
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style>
     h1 {
         text-align: left;
@@ -204,6 +205,12 @@ print <<HTML;
         white-space: nowrap;
     }
 </style>
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" media="all" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js" type="text/javascript"></script>
+
 </head>
 <body>
 HTML
@@ -214,10 +221,12 @@ for my $account (@accounts) {
     next if ( $account->basename !~ /$account_pattern/ || !$account->is_dir );
     print h1( "Adium logs for user: $adium_user, account: " . $account->basename );
     undef $logs_data;
+    print "<div class='accordion'>\n";
     $account->recurse( callback => \&_parse_file );    # à la File::Find
 
     for my $send_date ( sort keys %$logs_data ) {
-        print h2("Logs for date: $send_date");
+        print h2('<a href="#">Logs for date: ' . $send_date . '</a>');
+        print "<div>\n";
         for my $sender ( sort keys %{ $logs_data->{$send_date} } ) {
             print table (
                 {   -border      => '0',
@@ -237,10 +246,16 @@ for my $account (@accounts) {
                     } @{ $logs_data->{$send_date}{$sender}{msgs} },
             );
         }
+        print "</div>\n";
     }
+    print "</div>\n";
 }
 
-print <<HTML;
+print <<'HTML';
+<script>
+    $(function() { $( ".accordion" ).accordion({ autoHeight: false, navigation: true, collapsible: true }); });
+</script>
+
 </body>
 </html>
 HTML
