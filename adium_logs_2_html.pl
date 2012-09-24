@@ -108,6 +108,8 @@ use Path::Class;
 use Text::CSV_XS;
 use XML::LibXML;
 use Pod::Usage;
+use Digest::SHA qw(sha1_hex);
+use Data::Dumper;
 
 my $user = $ENV{USER};
 my ( $adium_user, $log_dir, $fromdate, $todate, $exclude_pattern, $help );
@@ -260,6 +262,8 @@ print <<'HTML';
 </html>
 HTML
 
+my %seen; # prevent duplicates.
+
 sub _parse_file {
     my $file = shift;
     return if $file !~ /.xml$/;
@@ -267,7 +271,7 @@ sub _parse_file {
     my $mtime = DateTime->from_epoch( epoch => $file->stat->mtime );
     return if ( $file->stat->mtime < $fromdate );
 
-    my $xml = XML::LibXML->new->parse_file($file)->documentElement
+    my $xml = XML::LibXML->new(recover => 1)->parse_file($file)->documentElement
         or return;
 
     # Example message:
@@ -284,8 +288,11 @@ sub _parse_file {
         next if ( $sent < $fromdate || $sent > $todate );
         $sent = DateTime->from_epoch( epoch => $sent )->strftime('%Y-%m-%d %H:%M:%S');
         $first_sent ||= $sent;    # keep the date for the header
-        push @{ $logs_data->{ substr( $sent, 0, 10 ) }{$sender}{msgs} },
-            [ $sent, $alias, encode_entities( $node->textContent ) ];
+        my $msg = encode_entities($node->textContent);
+        my $sha1_msg = sha1_hex(Dumper([$alias, $msg]));
+        push @{ $logs_data->{ substr( $sent, 0, 10 ) }{$sender}{msgs} }, [ $sent, $alias, $msg ]
+            if !$seen{$sha1_msg};
+        $seen{ $sha1_msg }++;
 
         # First sent can differ from sent, keep both
         $logs_data->{ substr( $sent, 0, 10 ) }{$sender}{caption}
