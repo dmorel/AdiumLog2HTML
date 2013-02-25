@@ -46,6 +46,10 @@ User name for finding the base directory. Defaults to C<$USER>.
 
 Adium user name, as seen in the "Login as user" box one sometimes sees at program startup.
 
+=item C<--nickhighlight-->
+
+Regex to match nicknames, which will be highlighted
+
 =item C<--help>
 
 Print this documentation.
@@ -112,7 +116,7 @@ use Digest::SHA qw(sha1_hex);
 use Data::Dumper;
 
 my $user = $ENV{USER};
-my ( $adium_user, $log_dir, $fromdate, $todate, $exclude_pattern, $help );
+my ( $adium_user, $log_dir, $fromdate, $todate, $exclude_pattern, $help, $nickhighlight );
 my $account_pattern = '.+';
 
 GetOptions(
@@ -124,6 +128,8 @@ GetOptions(
     "todate=s"   => \$todate,             # Any format parseable by Date::Parse
     "exclude=s"  => \$exclude_pattern,    # filenames to exclude, eg. 'conference'
     "h|help"     => \$help,
+    "nickhighlight=s" =>
+        \$nickhighlight,    # regex for recognizing oneself against nicknames (for highlighting)
 );
 
 pod2usage(-verbose => 2) if ($help);
@@ -206,6 +212,10 @@ print <<HTML;
         width: 1%;
         white-space: nowrap;
     }
+
+    .nickhighlight {
+        color: red;
+    }
 </style>
 
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
@@ -241,8 +251,12 @@ for my $account (@accounts) {
                     th( [ 'Time', 'From', 'Message' ] )
                 ),
                 map {
-                    TR( td( { -class => 'date' },  $_->[0] ),
-                        td( { -class => 'alias' }, $_->[1] ),
+                    TR( td( { -class => 'date' }, $_->[0] ),
+                        td( {   -class => 'alias'
+                                    . ( $_->[1] =~ /$nickhighlight/ ? ' nickhighlight' : '' )
+                            },
+                            $_->[1]
+                        ),
                         td( $_->[2] ),
                         )
                     } @{ $logs_data->{$send_date}{$sender}{msgs} },
