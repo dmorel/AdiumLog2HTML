@@ -162,7 +162,7 @@ my @accounts = $log_dir->children();
 
 binmode STDOUT, ':encoding(UTF-8)';
 
-print <<HTML;
+print STDOUT <<HTML;
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -218,10 +218,10 @@ print <<HTML;
     }
 </style>
 
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" type="text/css" media="all" />
     <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" media="all" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-    <script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.min.js" type="text/javascript"></script>
 
 </head>
 <body>
@@ -269,7 +269,7 @@ for my $account (@accounts) {
 
 print <<'HTML';
 <script>
-    $(function() { $( ".accordion" ).accordion({ autoHeight: false, navigation: true, collapsible: true }); });
+    $(function() { $( ".accordion" ).accordion({ autoHeight: false, navigation: false, collapsible: true }); });
 </script>
 
 </body>
